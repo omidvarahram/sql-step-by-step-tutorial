@@ -1,7 +1,3 @@
-
-Certainly! Here's a version that uses a custom `enum` for errors:
-
-```swift
 import Foundation
 
 class AssetsLoading {
@@ -30,35 +26,43 @@ class AssetsLoading {
         }
     }
 
-    func parseAndValidateConfig(downloadedConfig: String, publicKey: String) throws -> [String: Any] {
+    func parseAndValidateConfig(downloadedConfig: String, publicKey: String) -> Result<[String: Any], Error> {
         
         // Step 1: Parsing
         guard let data = downloadedConfig.data(using: .utf8) else {
-            throw ConfigError.stringToDataConversionFailed
+            return .failure(ConfigError.stringToDataConversionFailed)
         }
         
         guard let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
-            throw ConfigError.parsingFailed
+            return .failure(ConfigError.parsingFailed)
         }
         
+        do {
+            try validateConfig(jsonObject, publicKey: publicKey)
+            return .success(jsonObject)
+        } catch let error {
+            return .failure(error)
+        }
+    }
+    
+    private func validateConfig(_ config: [String: Any], publicKey: String) throws {
+        
         // Step 2: Check for mandatory fields
-        guard let _ = jsonObject["appConfig"], let _ = jsonObject["signature"] else {
+        guard let _ = config["appConfig"], let _ = config["signature"] else {
             throw ConfigError.mandatoryFieldsMissing
         }
         
         // Step 3: Validate types
-        guard let _ = jsonObject["signature"] as? String, let _ = jsonObject["appConfig"] as? [String: Any] else {
+        guard let _ = config["signature"] as? String, let _ = config["appConfig"] as? [String: Any] else {
             throw ConfigError.invalidFieldTypes
         }
         
         // Step 4: Verify signature
-        let signature = jsonObject["signature"] as! String
+        let signature = config["signature"] as! String
         let isSignatureValid = AssetsValidator.verifySignature(signature: signature, publicKey: publicKey)
         if !isSignatureValid {
             throw ConfigError.signatureVerificationFailed
         }
-        
-        return jsonObject
     }
 }
 
@@ -68,6 +72,3 @@ class AssetsValidator {
         // Return true if valid, false otherwise.
     }
 }
-```
-
-The error-handling structure now uses an `enum`, making it cleaner and more modular.
