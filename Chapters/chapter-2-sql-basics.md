@@ -1,74 +1,96 @@
-import Foundation
 
-class AssetsLoading {
+Sure! I've added a placeholder for the `mockedDownloadedConfig` within the tests. You can replace the placeholder with your actual mock data:
 
-    // Error enum
-    enum ConfigError: Error {
-        case stringToDataConversionFailed
-        case parsingFailed
-        case mandatoryFieldsMissing
-        case invalidFieldTypes
-        case signatureVerificationFailed
+```swift
+import XCTest
+@testable import YourModuleName // replace with the name of your module
+
+class AssetsLoadingTests: XCTestCase {
+    
+    var assetsLoading: AssetsLoading!
+    let mockedDownloadedConfig = "YOUR_MOCKED_DOWNLOADED_CONFIG_STRING_HERE" // Replace with your mock data
+
+    override func setUp() {
+        super.setUp()
+        assetsLoading = AssetsLoading()
+    }
+
+    override func tearDown() {
+        assetsLoading = nil
+        super.tearDown()
+    }
+
+    func testStringToDataConversionFailed() {
+        let result = assetsLoading.parseAndValidateConfig(downloadedConfig: "", publicKey: "dummyKey")
         
-        var localizedDescription: String {
-            switch self {
-            case .stringToDataConversionFailed:
-                return "Failed to convert string to data."
-            case .parsingFailed:
-                return "Parsing failed."
-            case .mandatoryFieldsMissing:
-                return "Mandatory fields are missing."
-            case .invalidFieldTypes:
-                return "Invalid types for fields."
-            case .signatureVerificationFailed:
-                return "Signature verification failed."
-            }
+        switch result {
+        case .failure(let error as AssetsLoading.ConfigError):
+            XCTAssertEqual(error, AssetsLoading.ConfigError.stringToDataConversionFailed)
+        default:
+            XCTFail("Expected .stringToDataConversionFailed error")
         }
     }
 
-    func parseAndValidateConfig(downloadedConfig: String, publicKey: String) -> Result<[String: Any], Error> {
+    func testParsingFailed() {
+        let invalidJSON = "{ invalid: json }"
+        let result = assetsLoading.parseAndValidateConfig(downloadedConfig: invalidJSON, publicKey: "dummyKey")
         
-        // Step 1: Parsing
-        guard let data = downloadedConfig.data(using: .utf8) else {
-            return .failure(ConfigError.stringToDataConversionFailed)
-        }
-        
-        guard let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] else {
-            return .failure(ConfigError.parsingFailed)
-        }
-        
-        do {
-            try validateConfig(jsonObject, publicKey: publicKey)
-            return .success(jsonObject)
-        } catch let error {
-            return .failure(error)
+        switch result {
+        case .failure(let error as AssetsLoading.ConfigError):
+            XCTAssertEqual(error, AssetsLoading.ConfigError.parsingFailed)
+        default:
+            XCTFail("Expected .parsingFailed error")
         }
     }
     
-    private func validateConfig(_ config: [String: Any], publicKey: String) throws {
+    func testMandatoryFieldsMissing() {
+        let missingFieldsJSON = "{\"randomField\": \"value\"}"
+        let result = assetsLoading.parseAndValidateConfig(downloadedConfig: missingFieldsJSON, publicKey: "dummyKey")
         
-        // Step 2: Check for mandatory fields
-        guard let _ = config["appConfig"], let _ = config["signature"] else {
-            throw ConfigError.mandatoryFieldsMissing
-        }
-        
-        // Step 3: Validate types
-        guard let _ = config["signature"] as? String, let _ = config["appConfig"] as? [String: Any] else {
-            throw ConfigError.invalidFieldTypes
-        }
-        
-        // Step 4: Verify signature
-        let signature = config["signature"] as! String
-        let isSignatureValid = AssetsValidator.verifySignature(signature: signature, publicKey: publicKey)
-        if !isSignatureValid {
-            throw ConfigError.signatureVerificationFailed
+        switch result {
+        case .failure(let error as AssetsLoading.ConfigError):
+            XCTAssertEqual(error, AssetsLoading.ConfigError.mandatoryFieldsMissing)
+        default:
+            XCTFail("Expected .mandatoryFieldsMissing error")
         }
     }
-}
+    
+    func testInvalidFieldTypes() {
+        let invalidTypesJSON = "{\"appConfig\": \"value\", \"signature\": 123}"
+        let result = assetsLoading.parseAndValidateConfig(downloadedConfig: invalidTypesJSON, publicKey: "dummyKey")
+        
+        switch result {
+        case .failure(let error as AssetsLoading.ConfigError):
+            XCTAssertEqual(error, AssetsLoading.ConfigError.invalidFieldTypes)
+        default:
+            XCTFail("Expected .invalidFieldTypes error")
+        }
+    }
 
-class AssetsValidator {
-    static func verifySignature(signature: String, publicKey: String) -> Bool {
-        // Your implementation for signature verification
-        // Return true if valid, false otherwise.
+    func testSignatureVerificationFailed() {
+        let jsonWithInvalidSignature = "{\"appConfig\": {}, \"signature\": \"invalidSignature\"}"
+        let result = assetsLoading.parseAndValidateConfig(downloadedConfig: jsonWithInvalidSignature, publicKey: "dummyKey")
+        
+        switch result {
+        case .failure(let error as AssetsLoading.ConfigError):
+            XCTAssertEqual(error, AssetsLoading.ConfigError.signatureVerificationFailed)
+        default:
+            XCTFail("Expected .signatureVerificationFailed error")
+        }
+    }
+
+    func testValidConfigUsingMock() {
+        let result = assetsLoading.parseAndValidateConfig(downloadedConfig: mockedDownloadedConfig, publicKey: "dummyKey")
+        
+        switch result {
+        case .success(let jsonObject):
+            XCTAssertNotNil(jsonObject["appConfig"])
+            XCTAssertNotNil(jsonObject["signature"])
+        default:
+            XCTFail("Expected valid JSON object")
+        }
     }
 }
+```
+
+Remember to replace the `mockedDownloadedConfig` placeholder with your actual mocked configuration string. The test `testValidConfigUsingMock` uses the `mockedDownloadedConfig` to test a valid configuration scenario.
