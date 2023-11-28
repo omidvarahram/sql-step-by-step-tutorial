@@ -107,3 +107,67 @@ Effective testing is a cornerstone of our development process. It ensures that o
 - **Use Fixtures**: Utilize fixtures in your tests to factor out the creation of incidental model objects, which helps in reducing redundancy and focusing on the test subject.
 
 By following these testing practices, we can ensure that our codebase remains robust, flexible, and error-free.
+
+
+#ios
+
+# iOS Development Principles
+
+This document outlines the principles of iOS development within our organization. It aims to codify the often verbally agreed standards into a clear set of guidelines. As each project can be quite different, this document draws a line in the sand around some obvious and not-so-obvious principles that are crucial for the consistency and quality of our code.
+
+## Framework Rules
+
+- Do not import the React Native module into any Swift code.
+- Do not import any React Native headers into a public Objective-C header.
+
+Importing React Native in such a way will expose the modules from the framework and force consuming apps to link against React Native, which is against our architecture principles.
+
+## Development Best Practices
+
+We prefer the following:
+
+- Immutable over mutable to ensure thread safety and predictability.
+- Small classes/methods over larger ones to maintain readability and manageability.
+- Classes with a single responsibility, as defined by the [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single_responsibility_principle), over classes that perform multiple tasks.
+- Simple view controllers over view controllers with complex logic, view creation, API callbacks, etc.
+- Organized code within the source files, Xcode project, and filesystem to maintain clarity and ease of navigation.
+- Following existing patterns in our project over introducing new ones, unless the existing pattern is causing significant issues.
+- Designing better solutions where applicable and adopting them over solutions that are no longer appropriate.
+- Simple code over fancy code to keep the codebase maintainable and straightforward.
+- Refactoring common code over duplicating business logic to promote DRY (Don't Repeat Yourself) principles.
+- Methods and variables that self-describe over using comments to explain functionality.
+- Documented external interfaces to ensure that any public API or interface is well-understood and easy to use.
+- Leaving the code in a better state than when it was found, adhering to the "boy scout rule".
+- No warnings in Xcode or when building on the command line to maintain a clean and warning-free build environment.
+
+## Testing
+
+- Use breakpoints to catch errors during development.
+- Write tests while developing a class and push code that has a test.
+- Question pull requests that do not include tests.
+
+## Objective-C Specific Guidelines
+
+- Follow Cocoa conventions as per Apple's guidelines.
+- Use generics on collections like `NSArray<Foo *>` to specify contained types.
+- Use named and meaningful constants in Apple’s Hungarian notation (e.g., `kPortfolioSectionHeight`) instead of magic/random numbers and strings.
+- Annotate headers with nullability specifiers to indicate whether a method can return `nil`.
+- Order methods and properties in a standard way for consistency.
+- Avoid using `[SomeClass new]` as a rule since it hides errors when `init` is unavailable or deprecated. Use `[[SomeClass alloc] init]` always.
+- Use `NSUInteger` instead of `NSInteger` where applicable, considering the range of possible values for the types you use.
+
+## Swift Specific Guidelines
+
+```swift
+// Preferred way of defining a constant in Swift following Hungarian notation
+let kMaximumNumberOfItems = 50
+
+// Example of a small, single-responsibility class
+class ItemFetcher {
+    func fetchItems(completion: ([Item]) -> Void) {
+        // Fetch logic here
+    }
+}
+
+// Immutable example
+let items: [Item] = fetchItems()React Native Specific GuidelinesUse React Native components in a way that they remain encapsulated within the React Native environment and do not leak into the native codebase.BuildingPrefix all ruby commands with bundle exec to ensure the use of the correct environment.By following these principles, we aim to create iOS applications that are not just functional but exemplary in terms of code quality and architecture.
