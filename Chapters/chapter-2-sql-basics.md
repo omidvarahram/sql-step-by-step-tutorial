@@ -22,3 +22,25 @@ External teams are encouraged to fork the repository for their development purpo
 All merging steps in this workflow require a minimum of two approvals, with at least one approval from a code owner, to ensure quality and adherence to project standards.
 
 For more detailed instructions and guidelines, please refer to our comprehensive [Branching Strategy Documentation](#placeholder-link).
+
+### Release Process Overview
+
+The release process in our project is a structured and automated sequence, designed to ensure a smooth transition of code from development to production. This process involves the creation of alpha and beta versions, leading up to a final release. We adhere to semantic versioning principles, and the entire process is fully automated to maintain consistency and efficiency.
+
+#### Alpha Version Creation
+- **Branching for Alpha**: Developers create feature or fix branches with appropriate prefixes (`feature` or `fix`) from the `feature-release` branch.
+- **Merging to `feature-release`**: Upon completion, these branches are merged into the `feature-release` branch through a pull request. This merge generates an alpha version of the application.
+- **Automated Versioning**: Our automated systems automatically assign a semantic version number to this alpha release, reflecting the nature and extent of changes made.
+
+#### Beta Version Creation
+- **PR to `develop`**: After the alpha version is stable, a pull request is created to merge the `feature-release` branch into the `develop` branch.
+- **Merging and Beta Version**: Merging into the `develop` branch results in the creation of a beta version. This version is meant for broader testing and final adjustments before the production release.
+- **Automated Beta Versioning**: Similar to the alpha version, the beta version is automatically assigned a semantic version number, indicating its stage in the release process.
+
+#### Final Release
+- **PR from `develop` to `master`**: The final step is a pull request from the `develop` branch to the `master` branch. This PR signifies the readiness of the code for production.
+- **Production Release**: Merging this PR into the `master` branch triggers the release of the new production version of the application.
+- **Automated Semantic Versioning**: The release to the `master` branch is automatically assigned a final semantic version number, indicating its official release status.
+
+#### Summary
+Throughout this process, each step is carefully automated to align with semantic versioning. This automation ensures that version numbers accurately reflect the changes in each release, be it an alpha, beta, or final production release. The emphasis on automation not only streamlines the release process but also minimizes human error, ensuring a reliable and consistent release workflow.
