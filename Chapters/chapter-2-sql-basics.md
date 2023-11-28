@@ -71,3 +71,39 @@ Our iOS development process prioritizes practices that ensure clean, efficient, 
 - **Data Protection and Error Handling**: Ensure robust data protection measures and error handling practices are in place to prevent crashes and safeguard against vulnerabilities.
 
 By adhering to these best practices, our team aims to create iOS applications that are not just functional but also exemplify high standards of software craftsmanship.
+
+
+### Testing
+
+Effective testing is a cornerstone of our development process. It ensures that our code is reliable and maintainable. Below are the guidelines for testing within our project:
+
+#### Test-Driven Development
+- **Test While Developing**: Write tests concurrently while developing a class to ensure each new piece of code functions as expected.
+- **Push Code with Tests**: Only push code that includes corresponding tests, demonstrating that the new functionality works and does not break existing features.
+- **Question Pull Requests Without Tests**: Scrutinize and question any pull requests that do not include tests. Every change in the codebase should be verifiable through tests.
+
+#### Designing Testable Code
+- **Dependency Injection**: Use dependency injection over creating dependencies within the class to make classes easier to test.
+- **Single Responsibility**: Develop classes that are easy to test by ensuring they have a single responsibility and do not mix concerns.
+
+#### Maintaining a Healthy Build
+- **Keep the Build Green**: Always maintain a passing build. If the build breaks, fixing it should be the team’s top priority.
+- **Unit Test Non-View Classes**: Write unit tests for all public methods in classes that are not directly tied to the UI.
+- **Integration Tests**: Integration test the public interface of each component or kit to ensure parts of the system work together as expected.
+- **UI Tests**: Perform UI tests on the application to verify the user interface behaves correctly under various scenarios.
+
+#### Test Characteristics
+- **Focused Tests**: Write tests that are focused on small pieces of functionality and avoid testing multiple things at once.
+- **Fast Tests**: Strive for tests that run quickly to support rapid development cycles.
+- **Reliable Tests**: Ensure tests are consistent and do not have flaky behavior.
+- **Full Test Suite**: Run the full test suite from the command line before creating pull requests to ensure all tests pass.
+
+#### Continuous Testing
+- **Real Device Testing**: Periodically confirm functionality on a real device, not just simulators or emulators.
+- **Test Public Interfaces**: Test the public interface, including those defined in protocols that are implemented, to ensure they meet the contract they advertise.
+
+#### Structuring Tests
+- **Given/When/Then**: Use the Given/When/Then structure in your tests to designate the setup, method under test, and the expectations respectively.
+- **Use Fixtures**: Utilize fixtures in your tests to factor out the creation of incidental model objects, which helps in reducing redundancy and focusing on the test subject.
+
+By following these testing practices, we can ensure that our codebase remains robust, flexible, and error-free.
