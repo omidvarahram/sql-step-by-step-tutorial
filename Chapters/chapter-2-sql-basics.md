@@ -16,3 +16,28 @@ DexGuard (for Android) and iXGuard (for iOS), both developed by Guardsquare, off
 - **Testing**: After applying obfuscation, thorough testing is necessary to ensure that the application still functions as expected and that the obfuscation hasn't introduced any unintended side effects.
 
 For the most accurate and detailed information, including specific configuration options and best practices, it's recommended to refer directly to the official documentation of DexGuard and iXGuard. Unfortunately, I can't browse their documentation directly, but you can find it on the Guardsquare website or by contacting their support team for specific queries.
+
+-keep public class com.example.MyPublicClass {
+    public protected *;
+}
+
+-keepclassmembers class com.example.MyPublicClass {
+    public <methods>;
+}
+
+-keep class com.example.ImportantActivity {
+    void importantMethod();
+    int importantField;
+}
+
+-dontobfuscate
+-keep class com.example.DoNotObfuscate {
+    *;
+}
+
+-keep class **.R
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+
+-keepattributes Signature, *Annotation*, EnclosingMethod
