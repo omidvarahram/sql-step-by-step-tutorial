@@ -1,96 +1,89 @@
-### Slide 1: Title Slide
-**Title:** Git Flow in Our Organization  
-**Subtitle:** Understanding Our Workflow and Best Practices  
-**Presented by:** [Your Name]  
-**Date:** [Today's Date]
+describe('AndroidSecureEventBus integration flow', () => {
+  let eventBus: AndroidSecureEventBus<any, any>;
+  let mockMessagePort: any;
 
-### Slide 2: Introduction to Git Flow
-- **Definition:** Git Flow is a branching model for Git that encourages parallel development and collaboration.
-- **Purpose:** Simplifies the management of feature development, hotfixes, and releases.
+  beforeEach(() => {
+    // Mock the global window.addEventListener
+    jest.spyOn(window, 'addEventListener').mockImplementation((event, callback) => {
+      if (event === 'message') {
+        global.messageHandler = callback; // Store the callback to manually trigger later
+      }
+    });
 
-### Slide 3: Git Flow Branches Overview
-- **Master:** Contains production-ready code.
-- **Develop:** Integrates features for the next release.
-- **Feature:** Used to develop new features.
-- **Release:** Prepares for a new production release.
-- **Hotfix:** Fixes for production bugs.
+    // Mock the messagePort with a mock onmessage handler
+    mockMessagePort = {
+      postMessage: jest.fn(),
+      onmessage: jest.fn(),
+    };
 
-### Slide 4: Semantic Versioning
-- **Definition:** A versioning scheme using three numbers: Major.Minor.Patch (e.g., 1.2.3).
-- **Major:** Breaking changes.
-- **Minor:** New features, but backwards compatible.
-- **Patch:** Bug fixes and minor changes.
+    // Create a new instance of AndroidSecureEventBus
+    eventBus = new AndroidSecureEventBus();
+  });
 
-### Slide 5: Git Flow Process (Before Release Branch)
-1. **Feature Development:** 
-   - Branch from `feature-release` (e.g., `feature-release/1.0`).
-   - Develop features on `feature` branches (e.g., `feature/feature-name`).
-2. **Merging:** 
-   - Merge `feature` branches into `feature-release`.
-   - Test and validate.
-   - Merge `feature-release` into `develop`.
-3. **Release to Production:** 
-   - Merge `develop` into `master`.
-   - Tag `master` with the version number.
-   - CI/CD pipeline handles versioning and deployment.
+  test('should set messagePort on the first message event and add data to dataPromises on the second message', () => {
+    // Step 1: Simulate the first message event that sets the messagePort
+    const firstMessageEvent = {
+      data: { webViewContainerSecureMessagePort: true },
+      ports: [mockMessagePort], // Pass the mockMessagePort
+    } as MessageEvent;
 
-### Slide 6: Example Git Flow (Before Release Branch)
-- Diagram showing branches and merge flow.
-  - `feature-release/1.0` -> `feature/feature-A`, `feature/feature-B`.
-  - `feature/feature-A` -> `feature-release/1.0` -> `develop` -> `master`.
+    // Trigger the first message event using the stored global handler
+    global.messageHandler(firstMessageEvent);
 
-### Slide 7: Git Flow Process (After Release Branch)
-1. **Feature Development:** 
-   - Same as before: Branch from `feature-release`.
-2. **Release Preparation:** 
-   - Create `release` branch (e.g., `release/1.0`).
-   - Merge `feature-release` into `release`.
-   - Final testing on `release` branch.
-3. **Merging:** 
-   - Merge `release` into `develop`.
-   - Merge `develop` into `master`.
-   - Tag `master` with the version number.
+    // Check that the messagePort was set
+    expect(eventBus.messagePort).toEqual(mockMessagePort);
 
-### Slide 8: Example Git Flow (After Release Branch)
-- Diagram showing branches and merge flow.
-  - `feature-release/1.0` -> `feature/feature-A`, `feature/feature-B`.
-  - `feature/feature-A` -> `feature-release/1.0` -> `release/1.0` -> `develop` -> `master`.
+    // Step 2: Now, simulate the second message that would trigger messagePort.onmessage
+    const secondMessageData = JSON.stringify({ appId: 'test-app', type: 'test-type' });
+    const secondMessageEvent = {
+      data: secondMessageData,
+    } as MessageEvent;
 
-### Slide 9: Handling Hotfixes
-- **Hotfix Creation:** Branch from `master` (e.g., `hotfix/1.0.1`).
-- **Merging Hotfixes:** 
-   - Merge `hotfix` back into `master`.
-   - Merge `hotfix` into `develop`.
+    // Trigger the onmessage manually
+    mockMessagePort.onmessage(secondMessageEvent);
 
-### Slide 10: Best Practices for Git Flow
-- **Consistent Naming:** Follow naming conventions for branches.
-- **Regular Merges:** Frequently merge `develop` and `feature-release` to avoid large merge conflicts.
-- **Code Reviews:** Implement code reviews before merging.
-- **Automated Testing:** Ensure all tests pass before merging to `develop` or `master`.
+    // Check if the data was added to dataPromises correctly
+    const expectedKey = 'test-app::test-type';
+    expect(eventBus['dataPromises'].get(expectedKey)).toEqual(JSON.parse(secondMessageData));
+  });
 
-### Slide 11: Benefits of Using Git Flow
-- **Organized Workflow:** Clear structure for managing changes.
-- **Parallel Development:** Enables multiple teams to work simultaneously.
-- **Controlled Releases:** Simplifies the release process and minimizes risks.
+  test('should not set messagePort if messageEventDataObjectKey is not present', () => {
+    // Step 1: Simulate the first message event without the required key
+    const invalidMessageEvent = {
+      data: { someOtherKey: true }, // Missing webViewContainerSecureMessagePort
+      ports: [mockMessagePort], // Pass the mockMessagePort
+    } as MessageEvent;
 
-### Slide 12: Tools and Automation
-- **CI/CD Pipelines:** Automate testing and deployment.
-- **Semantic Versioning Tools:** Automatically update version numbers.
-- **Git Hooks:** Enforce rules and automate checks at different stages.
+    // Trigger the first message event using the stored global handler
+    global.messageHandler(invalidMessageEvent);
 
-### Slide 13: Adapting Git Flow to Our Needs
-- **Custom Branches:** `feature-release` for intermediate feature integration.
-- **Monthly Releases:** Regular cadence with `release` branches.
-- **Quick Fixes:** Direct merges to `develop` or `release` branches as needed.
+    // Check that the messagePort was NOT set
+    expect(eventBus.messagePort).toBeNull();
+  });
 
-### Slide 14: Transitioning to the New Workflow
-- **Training:** Ensure the team understands the new `release` branch workflow.
-- **Documentation:** Update internal guides and documentation.
-- **Feedback Loop:** Continuously gather feedback and make improvements.
+  test('should log warning on invalid JSON in messagePort.onmessage', () => {
+    // Step 1: Simulate the first message event to set messagePort
+    const firstMessageEvent = {
+      data: { webViewContainerSecureMessagePort: true },
+      ports: [mockMessagePort], // Pass the mockMessagePort
+    } as MessageEvent;
 
-### Slide 15: Q&A
-- **Open Floor:** Address any questions or concerns from the team.
+    // Trigger the first message event
+    global.messageHandler(firstMessageEvent);
 
----
+    // Step 2: Now simulate an invalid JSON string in the onmessage event
+    const invalidMessageEvent = {
+      data: 'invalid-json-string',
+    } as MessageEvent;
 
-Would you like to add any specific examples or additional details to any of the slides?
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+    // Trigger the onmessage manually with invalid data
+    mockMessagePort.onmessage(invalidMessageEvent);
+
+    // Verify that the warning is logged
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[SecureEventBus][AndroidAuthEventBus]: Unexpected message received'
+    );
+  });
+});
