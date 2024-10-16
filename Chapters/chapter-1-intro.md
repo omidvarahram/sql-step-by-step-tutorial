@@ -1,3 +1,4 @@
+```
 describe('AndroidSecureEventBus integration flow', () => {
   let eventBus: AndroidSecureEventBus<any, any>;
   let mockMessagePort: any;
@@ -87,3 +88,4 @@ describe('AndroidSecureEventBus integration flow', () => {
     );
   });
 });
+```
