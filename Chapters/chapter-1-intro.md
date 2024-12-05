@@ -1,3 +1,4 @@
+'''
 const fs = require('fs');
 
 // Sample input array
@@ -30,3 +31,6 @@ fs.writeFileSync('output.json', jsonOutput);
 
 // Output to console
 console.log(jsonOutput);
+
+
+'''
